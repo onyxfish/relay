@@ -83,7 +83,9 @@ Pre-baked configuration files are in our Dropbox folder. You must have Dropbox i
 Sharing SSH
 ------------------
 
-To share your SSH connection (for tmux'ing), open a new terminal (or tab or tmux pane)::
+To share your SSH connection (for tmux'ing), open a new terminal (or tab or tmux pane):
+
+.. code:: bash:
 
     relay user:$USER share:22
 
