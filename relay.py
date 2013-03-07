@@ -22,6 +22,7 @@ env.pair_private_key = config.get('relay', 'private_key')
 env.pair_public_key = config.get('relay', 'public_key')
 env.pair_user = config.get('relay', 'pair_user')
 env.ports_json = config.get('relay', 'ports_json')
+env.bash_profile = config.get('relay', 'bash_profile')
 
 env.lib_path = LIB_PATH 
 env.forward_agent = True
@@ -46,7 +47,7 @@ def install_bash_profile():
     """
     Install bash profile aliases for local user.
     """
-    local('cat %(lib_path)s/bash_profile >> ~/.bash_profile' % env)
+    local('cat %(bash_profile)s >> ~/.bash_profile' % env)
 
 def create_pairprogrammer_osx():
     """
@@ -66,7 +67,7 @@ def create_pairprogrammer_osx():
     local('sudo mkdir -p /Users/%(pair_user)s/.ssh/' % env)
     local('sudo cp %(pair_public_key)s /Users/%(pair_user)s/.ssh/authorized_keys' % env)
     
-    local('sudo cp %(lib_path)s/bash_profile /Users/%(pair_user)s/.bash_profile' % env)
+    local('sudo cp %(bash_profile)s /Users/%(pair_user)s/.bash_profile' % env)
 
 def setup():
     install_bash_profile()
