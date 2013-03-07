@@ -6,7 +6,7 @@ setup(
     name='relay',
     version='0.0.1',
     description='Meta-magical SSH tunnels for remote developers behind firewalls.',
-    long_description=open('README.md').read(),
+    long_description=open('README').read(),
     author='Christopher Groskopf',
     author_email='staringmonkey@gmail.com',
     url='http://blog.apps.npr.org/',
