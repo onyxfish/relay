@@ -66,6 +66,12 @@ You then need to create a ``relay`` user. This process is automated::
 
     relay setup
 
+If you're running OS X, you need to enable remote login for the newly created ``relay`` user. Open System Preferences and navigate to the "Sharing" preference pane.
+
+Check the box next to "Remote Login."
+
+.. image:: remotelogin.png
+
 NPRApps setup
 -----------------
 
