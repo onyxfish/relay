@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name='relay',
-    version='0.0.2',
+    version='0.0.3',
     description='Meta-magical SSH tunnels for remote developers behind firewalls.',
     long_description=open('README.rst').read(),
     author='Christopher Groskopf',
@@ -31,7 +31,7 @@ setup(
         'relay'
     ],
     data_files = [
-        ('/usr/local/lib/relay/', ['relay.py', 'ports.json', 'bash_profile'])
+        ('/usr/local/lib/relay/', ['relay.py', 'bash_profile'])
     ],
     install_requires = [
         'fabric>=1.6.0'
