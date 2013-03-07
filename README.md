@@ -17,7 +17,7 @@ sudo pip install relay
 General setup
 -------------
 
-*nprapps users see the next section*
+*(nprapps users see the next section)*
 
 Relay uses a configuration file located at `~/.relay.conf`. Create this file with contents such as:
 
@@ -46,7 +46,7 @@ ports_json = /path/to/your/ports.json
 }
 ```
 
-You then need to create a `pairprogrammer` user. This process is automated:
+You then need to create a `relay` user. This process is automated:
 
 ```
 relay setup
