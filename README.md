@@ -1,7 +1,7 @@
 relay
 ========
 
-Magical SSH tunnels for remote developers behind firewalls.
+Meta-magical SSH tunnels for remote developers behind firewalls.
 
 Currently allows for sharing SSH connections (for collaborating in tmux+vim) and for sharing local development webservers.
 
