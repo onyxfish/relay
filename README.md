@@ -12,20 +12,51 @@ Install
 sudo pip install git+https://github.com/nprapps/relay.git
 ```
 
-Setup
---------
+General setup
+-------------
 
-In order to use relay you must have Dropbox installed, syncing to `~/Dropbox` and the `nprapps` shared folder synced to your local computer. This will allow relay to access the pairprogrammer shared keys.
+*nprapps users see the next section*
 
-Relay uses a configuration file located at `~/.relay.conf`. A pre-made configuration file is in the Dropbox and should be symlinked to your directory:
+Relay uses a configuration file located at `~/.relay.conf`. Create this file with contents such as:
 
 ```
-ln -s ~/Dropbox/nprapps/relay/relay.conf ~/.relay.conf
+[relay]
+user = ubuntu
+server = relay_server.your_domain.com
+private_key = /path/to/your/private_key
+public_key = /path/to/your/public_key.pub
+pair_user = relay
+ports_json = /path/to/your/ports.json
+```
+
+`ports.json` is a mapping of user's local ports to remote ports on the server, so that users will never collide when creating SSH tunnels. Create this file with contents such as:
+
+```
+{
+    "chris": {
+        "22": "2222",
+        "8000": "8000"
+    },
+    "katie": {
+        "22": "2223",
+        "8000": "8001"
+    },
+}
 ```
 
 You then need to create a `pairprogrammer` user. This process is automated:
 
 ```
+relay setup
+```
+
+NPRApps setup
+-----------------
+
+Pre-baked configuration files are in our Dropbox folder. You must have Dropbox installed, syncing to `~/Dropbox` and the `nprapps` shared folder synced to your local computer.
+
+```
+ln -s ~/Dropbox/nprapps/relay/relay.conf ~/.relay.conf
 relay setup
 ```
 
@@ -38,7 +69,7 @@ To share your SSH connection (for tmux'ing), open a new terminal (or tab or tmux
 relay user:$USER share:22
 ```
 
-Where `$USER` is your username.
+Where `$USER` is your username in `ports.json`.
 
 To connect to a shared SSH connection:
 
@@ -46,7 +77,7 @@ To connect to a shared SSH connection:
 relay user:$USER ssh
 ```
 
-Where `$USER` is the username of the user sharing the connection.
+Where `$USER` is the username in `ports.json` of the user sharing the connection.
 
 Sharing development webserver
 -----------------------------
@@ -57,7 +88,7 @@ To share your local development webserver, open a new terminal (or tab or tmux p
 relay user:$USER share:8000
 ```
 
-Where `$USER` is your username.
+Where `$USER` is your username in `ports.json`.
 
 To connect open a shared webserver in your browser:
 
@@ -65,6 +96,6 @@ To connect open a shared webserver in your browser:
 relay user:$USER web
 ```
 
-Where `$USER` is the username of the user sharing the webserver.
+Where `$USER` is the username in `ports.json` of the user sharing the webserver.
 
 
