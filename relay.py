@@ -18,11 +18,11 @@ config.read(CONF_PATH)
 
 env.relay_user = config.get('relay', 'user') 
 env.relay_server = config.get('relay', 'server')
-env.pair_private_key = config.get('relay', 'private_key')
-env.pair_public_key = config.get('relay', 'public_key')
+env.pair_private_key = os.path.expanduser(config.get('relay', 'private_key'))
+env.pair_public_key = os.path.expanduser(config.get('relay', 'public_key'))
 env.pair_user = config.get('relay', 'pair_user')
-env.ports_json = config.get('relay', 'ports_json')
-env.bash_profile = config.get('relay', 'bash_profile')
+env.ports_json = os.path.expanduser(config.get('relay', 'ports_json'))
+env.bash_profile = os.path.expanduser(config.get('relay', 'bash_profile'))
 
 env.lib_path = LIB_PATH 
 env.forward_agent = True

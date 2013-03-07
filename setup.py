@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name='relay',
-    version='0.0.4',
+    version='0.0.5',
     description='Meta-magical SSH tunnels for remote developers behind firewalls.',
     long_description=open('README.rst').read(),
     author='Christopher Groskopf',
