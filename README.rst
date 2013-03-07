@@ -3,7 +3,7 @@ relay
 
 Meta-magical SSH tunnels for remote developers behind firewalls.
 
-Currently allows for sharing SSH connections (for collaborating in tmux+vim) and for sharing local development webservers.
+Ever tried to pair-program with someone who works behind a firewall? You want to SSH into their machine, but you can't! Relay makes it possible to your development computer with anyone by putting another server in the middle to proxy the connection. And it doesn't just work for SSH, you can tunnel the webserver too!
 
 Server setup
 ------------
