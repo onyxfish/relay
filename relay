@@ -1,0 +1,3 @@
+#!/bin/bash
+
+fab -f /usr/local/lib/relay/relay.py $@

@@ -1,0 +1,7 @@
+*.py[co]
+*.sw[op]
+
+.DS_Store
+build
+dist
+relay.egg-info
