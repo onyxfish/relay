@@ -15,7 +15,7 @@ Install
 
 Relay can be installed in a virtualenv, but we recommend installing it with sudo so it is always available::
 
-    sudo pip install relay
+    $ sudo pip install relay
 
 General setup
 -------------
@@ -64,7 +64,7 @@ Relay uses a configuration file located at ``~/.relay.conf``. Create this file w
 
 You then need to create a ``relay`` user. This process is automated::
 
-    relay setup
+    $ relay setup
 
 If you're running OS X, you need to enable remote login for the newly created ``relay`` user. Open System Preferences and navigate to the "Sharing" preference pane.
 
@@ -77,8 +77,8 @@ NPRApps setup
 
 Pre-baked configuration files are in our Dropbox folder. You must have Dropbox installed, syncing to ``~/Dropbox`` and the ``nprapps`` shared folder synced to your local computer. Then run::
 
-    ln -s ~/Dropbox/nprapps/relay/relay.conf ~/.relay.conf
-    relay setup
+    $ ln -s ~/Dropbox/nprapps/relay/relay.conf ~/.relay.conf
+    $ relay setup
 
 Sharing SSH
 ------------------
@@ -87,13 +87,13 @@ To share your SSH connection (for tmux'ing), open a new terminal (or tab or tmux
 
 .. code:: bash:
 
-    relay user:$USER share:22
+    $ relay user:$USER share:22
 
 Where ``$USER`` is your username in ``ports.json``.
 
 To connect to a shared SSH connection::
 
-    relay user:$USER ssh
+    $ relay user:$USER ssh
 
 Where ``$USER`` is the username in ``ports.json`` of the user sharing the connection.
 
@@ -102,14 +102,12 @@ Sharing development webserver
 
 To share your local development webserver, open a new terminal (or tab or tmux pane)::
 
-    relay user:$USER share:8000
+    $ relay user:$USER share:8000
 
 Where ``$USER`` is your username in ``ports.json``.
 
 To connect open a shared webserver in your browser::
 
-    relay user:$USER web
+    $ relay user:$USER web
 
 Where ``$USER`` is the username in ``ports.json`` of the user sharing the webserver.
-
-
