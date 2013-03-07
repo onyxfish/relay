@@ -5,6 +5,11 @@ Meta-magical SSH tunnels for remote developers behind firewalls.
 
 Currently allows for sharing SSH connections (for collaborating in tmux+vim) and for sharing local development webservers.
 
+Server setup
+------------
+
+Relay requires that you have a server running somewhere public which you can use to bounce connections from between your users. We use an EC2 micro in a public security group, but you can use anything you want. You'll need to make sure whatever ports you map in your ``ports.json`` are open to the world.
+
 Install
 --------
 
@@ -17,7 +22,7 @@ General setup
 
 *(nprapps users see the next section)*
 
-Relay uses a configuration file located at `~/.relay.conf`. Create this file with contents such as:
+Relay uses a configuration file located at ``~/.relay.conf``. Create this file with contents such as:
 
 .. code:: ini
 
@@ -25,14 +30,24 @@ Relay uses a configuration file located at `~/.relay.conf`. Create this file wit
 
     # User to connect to the relay server as
     user = ubuntu
+
+    # Hostname or IP of the relay server
     server = relay_server.your_domain.com
-    private_key = /path/to/your/private_key
+
+    # Absolute path to the public and private SSH keys
     public_key = /path/to/your/public_key.pub
+    private_key = /path/to/your/private_key
+
+    # Username of the pair programmer account on each developer computer
     pair_user = relay
+
+    # Absolute path to the port mapping file
     ports_json = /path/to/your/ports.json
+
+    # Absolute path to a file containing bash aliases to be installed when creating the pair programmer user account
     bash_profile = /path/to/your/bash_profile
 
-`ports.json` is a mapping of user's local ports to remote ports on the server, so that users will never collide when creating SSH tunnels. Create this file with contents such as:
+``ports.json`` is a mapping of user's local ports to remote ports on the server, so that users will never collide when creating SSH tunnels. Create this file with contents such as:
 
 .. code:: javascript
 
@@ -47,14 +62,14 @@ Relay uses a configuration file located at `~/.relay.conf`. Create this file wit
         },
     }
 
-You then need to create a `relay` user. This process is automated::
+You then need to create a ``relay`` user. This process is automated::
 
     relay setup
 
 NPRApps setup
 -----------------
 
-Pre-baked configuration files are in our Dropbox folder. You must have Dropbox installed, syncing to `~/Dropbox` and the `nprapps` shared folder synced to your local computer. Then run::
+Pre-baked configuration files are in our Dropbox folder. You must have Dropbox installed, syncing to ``~/Dropbox`` and the ``nprapps`` shared folder synced to your local computer. Then run::
 
     ln -s ~/Dropbox/nprapps/relay/relay.conf ~/.relay.conf
     relay setup
@@ -66,13 +81,13 @@ To share your SSH connection (for tmux'ing), open a new terminal (or tab or tmux
 
     relay user:$USER share:22
 
-Where `$USER` is your username in `ports.json`.
+Where ``$USER`` is your username in ``ports.json``.
 
 To connect to a shared SSH connection::
 
     relay user:$USER ssh
 
-Where `$USER` is the username in `ports.json` of the user sharing the connection.
+Where ``$USER`` is the username in ``ports.json`` of the user sharing the connection.
 
 Sharing development webserver
 -----------------------------
@@ -81,12 +96,12 @@ To share your local development webserver, open a new terminal (or tab or tmux p
 
     relay user:$USER share:8000
 
-Where `$USER` is your username in `ports.json`.
+Where ``$USER`` is your username in ``ports.json``.
 
 To connect open a shared webserver in your browser::
 
     relay user:$USER web
 
-Where `$USER` is the username in `ports.json` of the user sharing the webserver.
+Where ``$USER`` is the username in ``ports.json`` of the user sharing the webserver.
 
 
