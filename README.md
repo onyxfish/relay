@@ -8,8 +8,10 @@ Currently allows for sharing SSH connections (for collaborating in tmux+vim) and
 Install
 --------
 
+Relay can be installed in a virtualenv, but we recommend installing it with sudo so it is always available:
+
 ```
-sudo pip install git+https://github.com/nprapps/relay.git
+sudo pip install relay
 ```
 
 General setup
