@@ -62,7 +62,8 @@ def create_pairprogrammer_osx():
     local('sudo mkdir -p /Users/%(pair_user)s' % env)
     local('sudo dscl . -create /Users/%(pair_user)s NFSHomeDirectory /Users/%(pair_user)s' % env)
 
-    local('sudo dscl . -append /Groups/com.apple.access_ssh GroupMembership %(pair_user)s' % env)
+    with settings(warn_only=True):
+        local('sudo dscl . -append /Groups/com.apple.access_ssh GroupMembership %(pair_user)s' % env)
 
     local('sudo mkdir -p /Users/%(pair_user)s/.ssh/' % env)
     local('sudo cp %(pair_public_key)s /Users/%(pair_user)s/.ssh/authorized_keys' % env)
