@@ -17,17 +17,24 @@ General setup
 
 *(nprapps users see the next section)*
 
-Relay uses a configuration file located at `~/.relay.conf`. Create this file with contents such as::
+Relay uses a configuration file located at `~/.relay.conf`. Create this file with contents such as:
+
+.. code:: ini
 
     [relay]
+
+    # User to connect to the relay server as
     user = ubuntu
     server = relay_server.your_domain.com
     private_key = /path/to/your/private_key
     public_key = /path/to/your/public_key.pub
     pair_user = relay
     ports_json = /path/to/your/ports.json
+    bash_profile = /path/to/your/bash_profile
 
-`ports.json` is a mapping of user's local ports to remote ports on the server, so that users will never collide when creating SSH tunnels. Create this file with contents such as::
+`ports.json` is a mapping of user's local ports to remote ports on the server, so that users will never collide when creating SSH tunnels. Create this file with contents such as:
+
+.. code:: javascript
 
     {
         "chris": {
