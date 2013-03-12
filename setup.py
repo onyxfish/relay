@@ -34,6 +34,6 @@ setup(
         ('/usr/local/lib/relay/', ['relay.py'])
     ],
     install_requires = [
-        'fabric>=1.6.0'
+        'paramiko>=1.1.0'
     ]
 )
