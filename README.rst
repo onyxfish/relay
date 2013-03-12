@@ -13,7 +13,9 @@ Relay requires that you have a server running somewhere public which you can use
 Install
 --------
 
-Relay can be installed in a virtualenv, but we recommend installing it with sudo so it is always available::
+Relay can be installed in a virtualenv, but we recommend installing it with sudo so it is always available:
+
+.. code:: bash
 
     $ sudo pip install relay
 
@@ -62,20 +64,26 @@ Relay uses a configuration file located at ``~/.relay.conf``. Create this file w
         },
     }
 
-You then need to create a ``relay`` user. This process is automated::
+``bash_profile`` is totally optional, but could contain aliases or environment variables you want every user to have automatically available.
+
+You now need to create a ``relay`` user. This process is automated:
+
+.. code:: bash
 
     $ relay setup
 
 If you're running OS X, you need to enable remote login for the newly created ``relay`` user. Open System Preferences and navigate to the "Sharing" preference pane.
 
-Check the box next to "Remote Login."
+Check the box next to "Remote Login." You can either add the ``relay`` user to the allowed users, or just leave it open to "All users." 
 
 .. image:: remotelogin.png
 
 NPRApps setup
 -----------------
 
-Pre-baked configuration files are in our Dropbox folder. You must have Dropbox installed, syncing to ``~/Dropbox`` and the ``nprapps`` shared folder synced to your local computer. Then run::
+Pre-baked configuration files are in our Dropbox folder. You must have Dropbox installed, syncing to ``~/Dropbox`` and the ``nprapps`` shared folder synced to your local computer. Then run:
+
+.. code:: bash
 
     $ ln -s ~/Dropbox/nprapps/relay/relay.conf ~/.relay.conf
     $ relay setup
@@ -85,13 +93,15 @@ Sharing SSH
 
 To share your SSH connection (for tmux'ing), open a new terminal (or tab or tmux pane):
 
-.. code:: bash:
+.. code:: bash
 
     $ relay user:$USER share:22
 
 Where ``$USER`` is your username in ``ports.json``.
 
-To connect to a shared SSH connection::
+To connect to a shared SSH connection:
+
+.. code:: bash
 
     $ relay user:$USER ssh
 
@@ -100,13 +110,17 @@ Where ``$USER`` is the username in ``ports.json`` of the user sharing the connec
 Sharing development webserver
 -----------------------------
 
-To share your local development webserver, open a new terminal (or tab or tmux pane)::
+To share your local development webserver, open a new terminal (or tab or tmux pane):
+
+..code:: bash
 
     $ relay user:$USER share:8000
 
 Where ``$USER`` is your username in ``ports.json``.
 
-To connect open a shared webserver in your browser::
+To connect open a shared webserver in your browser:
+
+.. code:: bash
 
     $ relay user:$USER web
 
