@@ -112,7 +112,7 @@ Sharing development webserver
 
 To share your local development webserver, open a new terminal (or tab or tmux pane):
 
-..code:: bash
+.. code:: bash
 
     $ relay user:$USER share:8000
 
