@@ -27,12 +27,11 @@ setup(
     py_modules = [
         'relay'
     ],
-    scripts = [
-        'relay'
-    ],
-    data_files = [
-        ('/usr/local/lib/relay/', ['relay.py'])
-    ],
+    entry_points = {
+        'console_scripts': [
+            'relay = relay:_main'
+        ]
+    },
     install_requires = [
         'paramiko>=1.1.0'
     ]
