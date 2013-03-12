@@ -4,9 +4,14 @@ import ConfigParser
 import json
 from optparse import OptionParser
 import os
+import shlex
+import socket
+import subprocess
 import sys
+import termios
+import tty
 
-import envoy
+import paramiko
 
 LIB_PATH = '/usr/local/lib/relay'
 CONF_PATH = os.path.expanduser('~/.relay.conf')
@@ -18,6 +23,7 @@ config = ConfigParser.ConfigParser()
 config.read(CONF_PATH)
 
 env = {}
+options = None
 
 env['relay_user'] = config.get('relay', 'user') 
 env['relay_server'] = config.get('relay', 'server')
@@ -32,7 +38,14 @@ env['forward_agent'] = True
 
 def _parse_options():
     parser = OptionParser(
-        usage=("relay [options] <command>[:arg1,arg2=val2,...] ...")
+        usage=("relay [options] <command>[:arg1,arg2,...] ...")
+    )
+
+    parser.add_option('--verbose',
+        action='store_true',
+        dest='verbose',
+        default=False,
+        help='display verbose output'
     )
 
     opts, args = parser.parse_args()
@@ -72,16 +85,68 @@ def _parse_arguments(arguments):
         if ':' in cmd:
             cmd, argstr = cmd.split(':', 1)
             for pair in _escape_split(',', argstr):
-                result = _escape_split('=', pair)
-                if len(result) > 1:
-                    k, v = result
-                    kwargs[k] = v
-                else:
-                    args.append(result[0])
+                args.append(pair)
         cmds.append((cmd, args, kwargs))
     return cmds
 
+def run(cmd):
+    """
+    Run a shell command using subprocess.
+    """
+    cmd = str(cmd)
+
+    if options.verbose:
+        sys.stdout.write('%s\n' % cmd)
+
+    cmd_list = shlex.split(cmd)
+
+    p = subprocess.Popen(
+        cmd_list,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE
+    )
+
+    return p.communicate()
+
+def posix_shell(chan):
+    """
+    POSIX shell implementation for proxied SSH.
+
+    Lifted from Paramiko examples.
+    """
+    import select
+    
+    oldtty = termios.tcgetattr(sys.stdin)
+    try:
+        tty.setraw(sys.stdin.fileno())
+        tty.setcbreak(sys.stdin.fileno())
+        chan.settimeout(0.0)
+
+        while True:
+            r, w, e = select.select([chan, sys.stdin], [], [])
+            if chan in r:
+                try:
+                    x = chan.recv(1024)
+                    if len(x) == 0:
+                        print '\r\n*** EOF\r\n',
+                        break
+                    sys.stdout.write(x)
+                    sys.stdout.flush()
+                except socket.timeout:
+                    pass
+            if sys.stdin in r:
+                x = sys.stdin.read(1)
+                if len(x) == 0:
+                    break
+                chan.send(x)
+
+    finally:
+        termios.tcsetattr(sys.stdin, termios.TCSADRAIN, oldtty)
+
 def _main():
+    global options
+
     try:
         parser, options, arguments = _parse_options()
 
@@ -116,6 +181,9 @@ def user(username):
     """
     Set programmer to use for connection.
     """
+    if options.verbose:
+        sys.stdout.write('User: %s\n' % username)
+
     with open(env['ports_json']) as f:
         user_port_maps = json.load(f)
         env['port_map'] = user_port_maps[username]
@@ -128,27 +196,29 @@ def install_bash_profile():
     """
     Install bash profile aliases for local user.
     """
-    envoy.run('cat %(bash_profile)s >> ~/.bash_profile' % env)
+    run('cat %(bash_profile)s >> ~/.bash_profile' % env)
 
 def create_pairprogrammer_osx():
     """
     Create OSX pair programming user.
     """
-    envoy.run('sudo dscl . -create /Users/%(pair_user)s' % env)
-    envoy.run('sudo dscl . -create /Users/%(pair_user)s UserShell /bin/bash' % env)
-    envoy.run('sudo dscl . -create /Users/%(pair_user)s RealName "%(pair_user)s"' % env)
-    envoy.run('sudo dscl . -create /Users/%(pair_user)s UniqueID "1667"' % env)
-    envoy.run('sudo dscl . -create /Users/%(pair_user)s PrimaryGroupID 20' % env)
+    #sys.stdout.write('Creating user "%(pair_users"' % env)
 
-    envoy.run('sudo mkdir -p /Users/%(pair_user)s' % env)
-    envoy.run('sudo dscl . -create /Users/%(pair_user)s NFSHomeDirectory /Users/%(pair_user)s' % env)
+    run('sudo dscl . -create /Users/%(pair_user)s' % env)
+    run('sudo dscl . -create /Users/%(pair_user)s UserShell /bin/bash' % env)
+    run('sudo dscl . -create /Users/%(pair_user)s RealName "%(pair_user)s"' % env)
+    run('sudo dscl . -create /Users/%(pair_user)s UniqueID "1667"' % env)
+    run('sudo dscl . -create /Users/%(pair_user)s PrimaryGroupID 20' % env)
 
-    envoy.run('sudo dscl . -append /Groups/com.apple.access_ssh GroupMembership %(pair_user)s' % env)
+    run('sudo mkdir -p /Users/%(pair_user)s' % env)
+    run('sudo dscl . -create /Users/%(pair_users NFSHomeDirectory /Users/%(pair_user)s' % env)
 
-    envoy.run('sudo mkdir -p /Users/%(pair_user)s/.ssh/' % env)
-    envoy.run('sudo cp %(pair_public_key)s /Users/%(pair_user)s/.ssh/authorized_keys' % env)
+    run('sudo dscl . -append /Groups/com.apple.access_ssh GroupMembership %(pair_user)s' % env)
+
+    run('sudo mkdir -p /Users/%(pair_user)s/.ssh/' % env)
+    run('sudo cp %(pair_public_key)s /Users/%(pair_user)s/.ssh/authorized_keys' % env)
     
-    envoy.run('sudo cp %(bash_profile)s /Users/%(pair_user)s/.bash_profile' % env)
+    run('sudo cp %(bash_profile)s /Users/%(pair_user)s/.bash_profile' % env)
 
 def setup():
     install_bash_profile()
@@ -170,7 +240,8 @@ def share(local_port):
         sys.exit('Port mapping does not exist for port %s' % local_port)
     
     sys.stdout.write('Sharing local port %(local_port)s on remote port %(remote_port)s\n' % env)
-    envoy.run(str('ssh -i %(pair_private_key)s -N -R 0.0.0.0:%(remote_port)s:localhost:%(local_port)s %(relay_user)s@%(relay_server)s' % env))
+
+    run('ssh -i %(pair_private_key)s -N -R 0.0.0.0:%(remote_port)s:localhost:%(local_port)s %(relay_user)s@%(relay_server)s' % env)
 
 def ssh():
     """
@@ -178,8 +249,21 @@ def ssh():
     """
     env['remote_port'] = env['port_map']['22']
 
-    envoy.run('chmod 600 %(pair_private_key)s' % env)
-    envoy.run('ssh -i %(pair_private_key)s -p %(remote_port)s %(pair_user)s@%(relay_server)s' % env)
+    sys.stdout.write('Connecting to SSH session on remote port %(remote_port)s\n' % env)
+
+    run('chmod 600 %(pair_private_key)s' % env)
+
+    client = paramiko.SSHClient()
+    client.load_system_host_keys()
+    client.connect(
+        hostname=env['relay_server'],
+        port=int(env['remote_port']),
+        username=env['pair_user'],
+        key_filename=env['pair_private_key']
+    )
+
+    channel = client.invoke_shell()
+    posix_shell(channel)
 
 def web():
     """
@@ -187,7 +271,7 @@ def web():
     """
     env['remote_port'] = env['port_map']['8000']
 
-    envoy.run('open http://%(relay_server)s:%(remote_port)s' % env)
+    run('open http://%(relay_server)s:%(remote_port)s' % env)
 
 if __name__ == '__main__':
     _main()

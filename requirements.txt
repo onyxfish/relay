@@ -1,1 +1,1 @@
-envoy==0.0.2
+paramiko==1.1.0
