@@ -16,75 +16,90 @@ import paramiko
 LIB_PATH = '/usr/local/lib/relay'
 CONF_PATH = os.path.expanduser('~/.relay.conf')
 
-if not os.path.exists(CONF_PATH):
-    sys.exit('Relay config file does not exist at %s!' % CONF_PATH)
-
-config = ConfigParser.ConfigParser()
-config.read(CONF_PATH)
-
 env = {}
-options = None
-
-env['relay_user'] = config.get('relay', 'user') 
-env['relay_server'] = config.get('relay', 'server')
-env['pair_private_key'] = os.path.expanduser(config.get('relay', 'private_key'))
-env['pair_public_key'] = os.path.expanduser(config.get('relay', 'public_key'))
-env['pair_user'] = config.get('relay', 'pair_user')
-env['ports_json'] = os.path.expanduser(config.get('relay', 'ports_json'))
-env['bash_profile'] = os.path.expanduser(config.get('relay', 'bash_profile'))
-
-env['lib_path'] = LIB_PATH 
-env['forward_agent'] = True
 
 def _parse_options():
+    """
+    Read configuration and parse command line options.
+    """
+    if not os.path.exists(CONF_PATH):
+        sys.exit('Relay config file does not exist at %s!' % CONF_PATH)
+
+    config = ConfigParser.ConfigParser()
+    config.read(CONF_PATH)
+
     parser = OptionParser(
         usage=("relay [options] <command>[:arg1,arg2,...] ...")
+    )
+
+    parser.add_option('--user',
+        dest='relay_user',
+        default=config.get('relay', 'user'),
+        help='User to connect to the relay server as'
+    )
+
+    parser.add_option('--server',
+        dest='relay_server',
+        default=config.get('relay', 'server'),
+        help='Hostname or IP of the relay server'
+    )
+
+    parser.add_option('--private-key',
+        dest='pair_private_key',
+        default=os.path.expanduser(config.get('relay', 'private_key')),
+        help='Absolute path to the private SSH key'
+    )
+
+    parser.add_option('--public-key',
+        dest='pair_public_key',
+        default=os.path.expanduser(config.get('relay', 'public_key')),
+        help='Absolute path to the public SSH key'
+    )
+
+    parser.add_option('--pair-user',
+        dest='pair_user',
+        default=config.get('relay', 'pair_user'),
+        help='Username of the pair programmer account on each developer computer'
+    )
+
+    parser.add_option('--ports-json',
+        dest='ports_json',
+        default=os.path.expanduser(config.get('relay', 'ports_json')),
+        help='Absolute path to the port mapping file'
+    )
+
+    parser.add_option('--bash-profile',
+        dest='bash_profile',
+        default=os.path.expanduser(config.get('relay', 'bash_profile')),
+        help='Absolute path to a file containing bash aliases to be installed when creating the pair programmer user'
     )
 
     parser.add_option('--verbose',
         action='store_true',
         dest='verbose',
         default=False,
-        help='display verbose output'
+        help='Display verbose output'
     )
 
     opts, args = parser.parse_args()
+
+    opts.lib_path = LIB_PATH
+
     return parser, opts, args
 
-def _escape_split(sep, argstr):
-    """
-    Allows for escaping of the separator: e.g. task:arg='foo\, bar'
-
-    It should be noted that the way bash et. al. do command line parsing, those
-    single quotes are required.
-    """
-    escaped_sep = r'\%s' % sep
-
-    if escaped_sep not in argstr:
-        return argstr.split(sep)
-
-    before, _, after = argstr.partition(escaped_sep)
-    startlist = before.split(sep)  # a regular split is fine here
-    unfinished = startlist[-1]
-    startlist = startlist[:-1]
-
-    # recurse because there may be more escaped separators
-    endlist = _escape_split(sep, after)
-
-    # finish building the escaped value. we use endlist[0] becaue the first
-    # part of the string sent in recursion is the rest of the escaped value.
-    unfinished += sep + endlist[0]
-
-    return startlist + [unfinished] + endlist[1:]  # put together all the parts
-
 def _parse_arguments(arguments):
+    """
+    Convert fabric-style arguments.
+
+    Partially lifted from fabric: https://github.com/fabric/fabric
+    """
     cmds = []
     for cmd in arguments:
         args = []
         kwargs = {}
         if ':' in cmd:
             cmd, argstr = cmd.split(':', 1)
-            for pair in _escape_split(',', argstr):
+            for pair in argstr.split(','):
                 args.append(pair)
         cmds.append((cmd, args, kwargs))
     return cmds
@@ -95,8 +110,8 @@ def run(cmd):
     """
     cmd = str(cmd)
 
-    if options.verbose:
-        sys.stdout.write('%s\n' % cmd)
+    if env['verbose']:
+        sys.stdout.write('--> %s\n' % cmd)
 
     cmd_list = shlex.split(cmd)
 
@@ -145,10 +160,14 @@ def posix_shell(chan):
         termios.tcsetattr(sys.stdin, termios.TCSADRAIN, oldtty)
 
 def _main():
-    global options
+    """
+    Execute a series of arbitrary commands.
 
+    Partially lifted from fabric: https://github.com/fabric/fabric
+    """
     try:
         parser, options, arguments = _parse_options()
+        env.update(vars(options))
 
         arguments = parser.largs
 
@@ -181,7 +200,7 @@ def user(username):
     """
     Set programmer to use for connection.
     """
-    if options.verbose:
+    if env['verbose']:
         sys.stdout.write('User: %s\n' % username)
 
     with open(env['ports_json']) as f:
@@ -270,6 +289,8 @@ def web():
     Open web browser at remote user's development server.
     """
     env['remote_port'] = env['port_map']['8000']
+
+    sys.stdout.write('Launching browser on remote port %(remote_port)s\n' % env)
 
     run('open http://%(relay_server)s:%(remote_port)s' % env)
 
