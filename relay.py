@@ -260,6 +260,8 @@ def share(local_port):
     
     sys.stdout.write('Sharing local port %(local_port)s on remote port %(remote_port)s\n' % env)
 
+    run('chmod 600 %(pair_private_key)s' % env)
+
     run('ssh -i %(pair_private_key)s -N -R 0.0.0.0:%(remote_port)s:localhost:%(local_port)s %(relay_user)s@%(relay_server)s' % env)
 
 def ssh():
