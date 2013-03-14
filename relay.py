@@ -230,7 +230,7 @@ def create_pairprogrammer_osx():
     run('sudo dscl . -create /Users/%(pair_user)s PrimaryGroupID 20' % env)
 
     run('sudo mkdir -p /Users/%(pair_user)s' % env)
-    run('sudo dscl . -create /Users/%(pair_users NFSHomeDirectory /Users/%(pair_user)s' % env)
+    run('sudo dscl . -create /Users/%(pair_user)s NFSHomeDirectory /Users/%(pair_user)s' % env)
 
     run('sudo dscl . -append /Groups/com.apple.access_ssh GroupMembership %(pair_user)s' % env)
 
